@@ -1,14 +1,18 @@
 import streamlit as st
-import matplotlib.pyplot as plt
+import pandas as pd
 from mplsoccer import VerticalPitch
 
-# Set the page config
-st.set_page_config(page_title="Wollongong Wolves Player Dashboard", layout="wide")
+# Load player stats from Excel
+@st.cache_data
+def load_stats():
+    return pd.read_excel("Wollongong Wolves Statistics (Python Version).xlsx")
 
-# Sample player data (20 total)
+stats_df = load_stats()
+
+# Player data
 players = [
     {
-        "name": "Alex Masciovecchio",
+        "Name": "Alex Masciovecchio",
         "dob": "25-09-2001",
         "Height": "",
         "Weight": "",
@@ -16,7 +20,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041024_Wollongong_Masciovecchio.jpg"
     },
     {
-        "name": "Banri Kanaizumi",
+        "Name": "Banri Kanaizumi",
         "dob": "04-05-1993",
         "Height": "182",
         "Weight": "",
@@ -24,7 +28,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041177_Wollongong_Kanaizumi.jpg"
     },
     {
-        "name": "Ben Giason",
+        "Name": "Ben Giason",
         "dob": "29-09-2004",
         "Height": "",
         "Weight": "",
@@ -32,7 +36,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041284_Wollongong_Giason.jpg"
     },
     {
-        "name": "Damon Gray",
+        "Name": "Damon Gray",
         "dob": "28-03-2005",
         "Height": "",
         "Weight": "",
@@ -40,7 +44,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041313_Wollongong_.jpg"
     },
     {
-        "name": "Darcy Madden",
+        "Name": "Darcy Madden",
         "dob": "17-04-1996",
         "Height": "188",
         "Weight": "",
@@ -48,7 +52,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041047_Wollongong_Madden.jpg"
     },
     {
-        "name": "Dax Kelly",
+        "Name": "Dax Kelly",
         "dob": "04-06-2003",
         "Height": "",
         "Weight": "",
@@ -56,7 +60,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041127_Wollongong_-1.jpg"
     },
     {
-        "name": "Dylan King",
+        "Name": "Dylan King",
         "dob": "2007",
         "Height": "",
         "Weight": "",
@@ -64,7 +68,7 @@ players = [
         "image": ""
     },
     {
-        "name": "Dylan Ryan",
+        "Name": "Dylan Ryan",
         "dob": "10-06-2000",
         "Height": "184",
         "Weight": "75",
@@ -72,7 +76,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041037_Wollongong_.jpg"
     },
     {
-        "name": "Harrison Buesnel",
+        "Name": "Harrison Buesnel",
         "dob": "28-06-2003",
         "Height": "188",
         "Weight": "",
@@ -80,7 +84,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041251_Wollongong_Buesnel.jpg"
     },
     {
-        "name": "James Anagnostopoulos",
+        "Name": "James Anagnostopoulos",
         "dob": "2004",
         "Height": "",
         "Weight": "",
@@ -88,7 +92,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041154_Wollongong_.jpg"
     },
     {
-        "name": "Lachlan Scott",
+        "Name": "Lachlan Scott",
         "dob": "15-04-1997",
         "Height": "180",
         "Weight": "",
@@ -96,7 +100,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041229_Wollongong_Scott.jpg"
     },
     {
-        "name": "Liam Ball",
+        "Name": "Liam Ball",
         "dob": "2005",
         "Height": "",
         "Weight": "",
@@ -104,7 +108,7 @@ players = [
         "image": ""
     },
     {
-        "name": "Lucas Trajcevski",
+        "Name": "Lucas Trajcevski",
         "dob": "2006",
         "Height": "",
         "Weight": "",
@@ -112,7 +116,7 @@ players = [
         "image": ""
     },
     {
-        "name": "Marcus Beattie",
+        "Name": "Marcus Beattie",
         "dob": "01-04-1996",
         "Height": "",
         "Weight": "",
@@ -120,7 +124,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041296_Wollongong_Beattie.jpg"
     },
     {
-        "name": "Nicholas Olsen",
+        "Name": "Nicholas Olsen",
         "dob": "26-09-1995",
         "Height": "175",
         "Weight": "",
@@ -128,7 +132,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041262_Wollongong_Olsen.jpg"
     },
     {
-        "name": "Oliver Yates",
+        "Name": "Oliver Yates",
         "dob": "20-01-2003",
         "Height": "195",
         "Weight": "",
@@ -136,7 +140,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041141_Wollongong_.jpg"
     },
     {
-        "name": "Raphael Lea'i",
+        "Name": "Raphael Lea'i",
         "dob": "09-09-2003",
         "Height": "176",
         "Weight": "60",
@@ -144,7 +148,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041324_Wollongong_LEAI.jpg"
     },
     {
-        "name": "Sebastian Duarte",
+        "Name": "Sebastian Duarte",
         "dob": "2006",
         "Height": "",
         "Weight": "",
@@ -152,7 +156,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041072_Wollongong_Duarte.jpg"
     },
     {
-        "name": "Sebastian Hernandez",
+        "Name": "Sebastian Hernandez",
         "dob": "2003",
         "Height": "183",
         "Weight": "",
@@ -160,7 +164,7 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041059_Wollongong_Hernandez.jpg"
     },
     {
-        "name": "Sim Woon Sub",
+        "Name": "Sim Woon Sub",
         "dob": "24-02-1990",
         "Height": "176",
         "Weight": "",
@@ -169,10 +173,11 @@ players = [
     }
 ]
 
-# Dropdown dictionary
-player_options = {player["name"]: player for player in players}
 
-# Position coordinates
+# Dropdown mapping
+player_options = {player["Name"]: player for player in players}
+
+# Position coordinates for the pitch map
 positions_coords = {
     'GK': (40, 10), 'CB': (40, 25), 'LCB': (25, 25), 'RCB': (55, 25),
     'RB': (75, 34), 'LB': (5, 34), 'LWB': (5, 60), 'LW': (5, 90),
@@ -183,8 +188,7 @@ positions_coords = {
 }
 
 # Styling
-st.markdown(
-    """
+st.markdown("""
     <style>
         .header-logo {
             position: absolute;
@@ -192,49 +196,61 @@ st.markdown(
             right: 5px;
             z-index: 100;
         }
-        .stApp {
-            padding-top: 80px;
-        }
         .player-info {
             margin-top: 20px;
             display: flex;
-            align-items: center;
-            justify-content: flex-start;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            margin-left: 20px;
         }
         .player-info img {
-            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+        .selectbox-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .selectbox-container select {
+            width: 100%;
+            font-size: 16px;
+            padding: 10px;
+            background-color: #28252C;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # Logo
 st.markdown('<img class="header-logo" src="https://upload.wikimedia.org/wikipedia/en/e/ed/Wollongong_Wolves_FC.jpg" width="70" />', unsafe_allow_html=True)
 
-# Title
+# Page Title
 st.title("Wollongong Wolves Player Dashboard")
 
-# Layout columns
-col1, col2 = st.columns([3, 2])
+# Create columns for layout: one for the player info and another for the pitch
+col1, col2 = st.columns([1, 2])
 
 with col1:
-    selected_name = st.selectbox("Select a Player", list(player_options.keys()))
+    # Add a container for the selectbox
+    selected_name = st.selectbox("Select a Player", list(player_options.keys()), key="player_selector")
     selected_player = player_options[selected_name]
 
-    # Player Info
-    st.markdown(f"<div class='player-info'>"
-                f"<img src='{selected_player['image']}' width='250'/>"
-                f"<div>"
-                f"<h3>{selected_player['name']}</h3>"
-                f"<p><strong>Date of Birth:</strong> {selected_player['dob']}</p>"
-                f"<p><strong>Height:</strong> {selected_player['Height']} cm</p>"
-                f"<p><strong>Weight:</strong> {selected_player['Weight']} kg</p>"
-                f"<p><strong>Positions:</strong> {', '.join(selected_player['positions'])}</p>"
-                f"</div>"
-                f"</div>", unsafe_allow_html=True)
+    # Display player info
+    st.markdown(f"""
+        <div class='player-info'>
+            <img src='{selected_player['image']}' width='250'/>
+            <div>
+                <p><strong>Date of Birth:</strong> {selected_player['dob']}</p>
+                <p><strong>Height:</strong> {selected_player['Height']} cm</p>
+                <p><strong>Weight:</strong> {selected_player['Weight']} kg</p>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
 with col2:
+    # Create the pitch layout
     pitch = VerticalPitch(half=False)
     fig, ax = pitch.draw(figsize=(7, 6))
     ax.set_facecolor("#28252C")
@@ -245,3 +261,21 @@ with col2:
         ax.text(coord[0], coord[1], pos_label, ha="center", va="center", fontsize=10, color="white")
 
     st.pyplot(fig)
+
+# Player stats displayed below the pitch
+selected_player_stats = stats_df[stats_df['Name'] == selected_name]
+selected_player_stats = selected_player_stats.sort_values(by='Round', ascending=False)
+
+# Reorder columns to pin 'Round' and 'Opponent' at the beginning
+columns_order = ['Round', 'Opponent'] + [col for col in selected_player_stats.columns if col not in ['Round', 'Opponent']]
+selected_player_stats = selected_player_stats[columns_order]
+
+# Calculate total minutes played
+total_minutes = selected_player_stats['Minutes'].sum() if 'Minutes' in selected_player_stats.columns else 0
+st.subheader(f"Total Minutes Played: {total_minutes}")
+
+if not selected_player_stats.empty:
+    st.subheader("Player Statistics")
+    st.dataframe(selected_player_stats.drop(columns=["Name"]), use_container_width=True)
+else:
+    st.warning("No stats found in the Excel file for this player.")
