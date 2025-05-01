@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from mplsoccer import VerticalPitch
 
+
+# to run: python -m streamlit run playerprofile.py
+
 # Load player stats from Excel
 @st.cache_data
 def load_stats():
@@ -266,6 +269,21 @@ with col2:
 selected_player_stats = stats_df[stats_df['Name'] == selected_name]
 selected_player_stats = selected_player_stats.sort_values(by='Round', ascending=False)
 
+# Format percentage columns into % with 0 decimal places for both stats_df and selected_player_stats
+percentage_columns = ['Dribble %', 'Pass %', 'Cross %', 'Long Ball %', 'Ground Duel %', 'Aerial Duel %']
+
+# Format in stats_df first
+for col in percentage_columns:
+    if col in stats_df.columns:
+        stats_df[col] = stats_df[col].apply(lambda x: f"{x * 100:.0f}%" if pd.notnull(x) else "")
+
+# Now apply to the selected_player_stats DataFrame
+for col in percentage_columns:
+    if col in selected_player_stats.columns:
+        selected_player_stats[col] = selected_player_stats[col].apply(lambda x: f"{x * 100:.0f}%" if pd.notnull(x) else "")
+
+
+
 # Reorder columns to pin 'Round' and 'Opponent' at the beginning
 columns_order = ['Round', 'Opponent'] + [col for col in selected_player_stats.columns if col not in ['Round', 'Opponent']]
 selected_player_stats = selected_player_stats[columns_order]
@@ -279,3 +297,25 @@ if not selected_player_stats.empty:
     st.dataframe(selected_player_stats.drop(columns=["Name"]), use_container_width=True)
 else:
     st.warning("No stats found in the Excel file for this player.")
+
+# Pre-defined disclaimer text
+disclaimer ="""
+Disclaimers:
+- Sofascore stat definitions: https://x.com/SofascoreINT/status/1239950999420375040
+- All event data is collected from Sofascore. The data from NPL NSW matches is gathered by data collectors who watch the YouTube stream. If the stream cuts out, they are unable to collect the event data that occurs during those moments.
+- The data collected for this app is typically available 3-4 days after the match is played.
+
+Missing Data:
+- Cup matches. The data is only from NPL NSW matches.
+- Match data for Round 2: Wollongong Wolves vs. St George City FA.
+- Lachlan Scott's 48th-minute goal from Round 10: Wollongong Wolves vs. Sutherland Sharks.
+- Expected Goals on Target (xGOT) from Round 12: Wollongong Wolves vs. Mt Druitt Town Rangers.
+"""
+
+# Display disclaimer at the bottom
+st.write("### Disclaimers & Missing Data")
+st.write(disclaimer)
+
+
+
+
