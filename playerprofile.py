@@ -123,7 +123,7 @@ players = [
         "dob": "01-04-1996",
         "Height": "",
         "Weight": "",
-        "positions": ["RWB", "RW", "RB"],
+        "positions": ["RWB", "RW", "RB", "RCM"],
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041296_Wollongong_Beattie.jpg"
     },
     {
