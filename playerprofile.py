@@ -293,10 +293,83 @@ total_minutes = selected_player_stats['Minutes'].sum() if 'Minutes' in selected_
 st.subheader(f"Total Minutes Played: {total_minutes}")
 
 if not selected_player_stats.empty:
-    st.subheader("Player Statistics")
+    st.subheader("Player Statistics (By Match)")
     st.dataframe(selected_player_stats.drop(columns=["Name"]), use_container_width=True)
 else:
     st.warning("No stats found in the Excel file for this player.")
+
+
+
+
+# ── Total STATS ────────────────────────────────────────────────────────────────
+@st.cache_data
+def load_Total_stats():
+    return pd.read_excel("Wollongong Wolves Statistics Total.xlsx")
+
+Total_df = load_Total_stats()
+
+# Filter to the chosen player
+selected_player_Total = Total_df[Total_df["Name"] == selected_name].copy()
+
+# ▸ 1. percentages ➜ "85%" style
+for col in percentage_columns:
+    if col in selected_player_Total.columns:
+        selected_player_Total[col] = selected_player_Total[col].apply(
+            lambda x: f"{x * 100:.0f}%" if pd.notnull(x) else ""
+        )
+
+# ▸ 2. everything else ➜ two‑decimal numbers (x.xx)
+for col in selected_player_Total.columns:
+    if col not in percentage_columns + ["Name"]:
+        selected_player_Total[col] = selected_player_Total[col].apply(
+            lambda x: f"{x:.2f}" if pd.notnull(x) else ""
+        )
+
+# ▸ 3. show it
+if not selected_player_Total.empty:
+    st.subheader("Player Statistics (Total)")
+    st.dataframe(selected_player_Total.drop(columns=["Name"]), use_container_width=True)
+else:
+    st.warning("No Total statistics available for this player.")
+
+
+
+
+
+# ── PER‑90 STATS ────────────────────────────────────────────────────────────────
+@st.cache_data
+def load_per90_stats():
+    return pd.read_excel("Wollongong Wolves Statistics per 90.xlsx")
+
+per90_df = load_per90_stats()
+
+# Filter to the chosen player
+selected_player_per90 = per90_df[per90_df["Name"] == selected_name].copy()
+
+# ▸ 1. percentages ➜ "85%" style
+for col in percentage_columns:
+    if col in selected_player_per90.columns:
+        selected_player_per90[col] = selected_player_per90[col].apply(
+            lambda x: f"{x * 100:.0f}%" if pd.notnull(x) else ""
+        )
+
+# ▸ 2. everything else ➜ two‑decimal numbers (x.xx)
+for col in selected_player_per90.columns:
+    if col not in percentage_columns + ["Name"]:
+        selected_player_per90[col] = selected_player_per90[col].apply(
+            lambda x: f"{x:.2f}" if pd.notnull(x) else ""
+        )
+
+# ▸ 3. show it
+if not selected_player_per90.empty:
+    st.subheader("Player Statistics (Per 90)")
+    st.dataframe(selected_player_per90.drop(columns=["Name"]), use_container_width=True)
+else:
+    st.warning("No per 90 statistics available for this player.")
+
+
+
+
 
 # Pre-defined disclaimer text
 disclaimer ="""
@@ -315,7 +388,4 @@ Missing Data:
 # Display disclaimer at the bottom
 st.write("### Disclaimers & Missing Data")
 st.write(disclaimer)
-
-
-
 
