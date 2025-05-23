@@ -371,6 +371,189 @@ else:
 
 
 
+# Define KPIs by position (your existing dictionary)
+kpi_by_position = {
+    "GK": [
+        "Saves", "Shots Faced", "Goals Conceded", "xGOT Faced", "xG Prevented", "Passes", "Passes Att.",
+        "Pass % Long Balls", "Long Balls Att.", "Long Ball %", "Clearances", "PAdj Interceptions"
+    ],
+    "FB": [
+        "xA", "Assists", "Dribbles", "Dribbles Att.", "Dribble %", "Passes", "Passes Att.", "Pass %",
+        "Key Passes", "Crosses", "Crosses Att.", "Cross %", "Long Balls", "Long Balls Att.", "Long Ball %",
+        "Ground Duels", "Ground Duels Att.", "Ground Duel %", "Aerial Duels", "Aerial Duels Att.",
+        "Aerial Duel %", "Fouls", "Was Fouled", "Clearances", "Blocked Shots", "Dribbled Past",
+        "PAdj Interceptions", "PAdj Tackles"
+    ],
+    "CB": [
+        "Passes", "Passes Att.", "Pass %", "Long Balls", "Long Balls Att.", "Long Ball %",
+        "Ground Duels", "Ground Duels Att.", "Ground Duel %", "Aerial Duels", "Aerial Duels Att.",
+        "Aerial Duel %", "Fouls", "Was Fouled", "Clearances", "Blocked Shots", "Dribbled Past",
+        "PAdj Interceptions", "PAdj Tackles"
+    ],
+    "DM": [
+        "Dribbles", "Dribbles Att.", "Dribble %", "Passes", "Passes Att.", "Pass %", "Key Passes",
+        "Big Chances Created", "Long Balls", "Long Balls Att.", "Long Ball %", "Ground Duels",
+        "Ground Duels Att.", "Ground Duel %", "Aerial Duels", "Aerial Duels Att.", "Aerial Duel %",
+        "Fouls", "Was Fouled", "Clearances", "Blocked Shots", "Dribbled Past",
+        "PAdj Interceptions", "PAdj Tackles"
+    ],
+    "CM": [
+        "xG", "xA", "Goals", "Assists", "Shots On Target", "Total Shots", "Dribbles", "Dribbles Att.",
+        "Dribble %", "Passes", "Passes Att.", "Pass %", "Key Passes", "Big Chances Created",
+        "Long Balls", "Long Balls Att.", "Long Ball %", "Ground Duels", "Ground Duels Att.",
+        "Ground Duel %", "Aerial Duels", "Aerial Duels Att.", "Aerial Duel %", "Fouls",
+        "Was Fouled", "Clearances", "Blocked Shots", "Dribbled Past",
+        "PAdj Interceptions", "PAdj Tackles"
+    ],
+    "AM": [
+        "xG", "xA", "Goals", "Assists", "Shots On Target", "Total Shots", "Dribbles", "Dribbles Att.",
+        "Dribble %", "Passes", "Passes Att.", "Pass %", "Key Passes", "Big Chances Created",
+        "Crosses", "Crosses Att.", "Cross %", "Long Balls", "Long Balls Att.",
+        "Long Ball %", "Ground Duels", "Ground Duels Att.", "Ground Duel %",
+        "Aerial Duels", "Aerial Duels Att.", "Aerial Duel %", "Fouls", "Was Fouled", "Offsides",
+        "Dribbled Past", "PAdj Interceptions", "PAdj Tackles"
+    ],
+    "W": [
+        "xG", "xA", "Goals", "Assists", "Shots On Target", "Total Shots", "Dribbles", "Dribbles Att.",
+        "Dribble %", "Passes", "Passes Att.", "Pass %", "Key Passes", "Big Chances Created",
+        "Crosses", "Crosses Att.", "Cross %", "Ground Duels", "Ground Duels Att.",
+        "Ground Duel %", "Aerial Duels", "Aerial Duels Att.", "Aerial Duel %", "Fouls",
+        "Was Fouled", "Offsides", "Dribbled Past", "PAdj Interceptions", "PAdj Tackles"
+    ],
+    "ST": [
+        "xG", "xA", "Goals", "Assists", "Shots On Target", "Total Shots", "Dribbles", "Dribbles Att.",
+        "Dribble %", "Passes", "Passes Att.", "Pass %", "Key Passes", "Big Chances Created",
+        "Ground Duels", "Ground Duels Att.", "Ground Duel %", "Aerial Duels", "Aerial Duels Att.",
+        "Aerial Duel %", "Fouls", "Was Fouled", "Offsides", "Dribbled Past",
+        "PAdj Interceptions", "PAdj Tackles"
+    ]
+}
+
+# Define KPI categories explicitly
+kpi_categories = {
+    "Shooting": [
+        "xG", "Goals", "Shots On Target", "Total Shots",
+    ],
+    "Creation": [
+        "xA", "Assists", "Big Chances Created", "Key Passes", "Crosses", "Crosses Att.", "Cross %"
+    ],
+    "Progression": [
+        "Dribbles", "Dribbles Att.", "Dribble %", "Was Fouled", "Offsides"
+    ],
+    "Passing": [
+        "Passes", "Passes Att.", "Pass %", "Long Balls", "Long Balls Att.", "Long Ball %"
+    ],
+    "Duels": [
+        "Ground Duels", "Ground Duels Att.", "Ground Duel %", "Aerial Duels", "Aerial Duels Att.", "Aerial Duel %"
+    ],
+    "Defence": [
+        "Fouls", "Clearances", "PAdj Interceptions", "PAdj Tackles", "Dribbled Past", "Blocked Shots"
+    ],
+    "Goalkeeping": [
+        "Saves", "Shots Faced", "Goals Conceded", "xGOT Faced", "xG Prevented"
+    ]
+}
+
+# Load benchmark data
+@st.cache_data
+def load_benchmark():
+    return pd.read_excel("NPL NSW 2025 May Position Benchmarks.xlsx")
+
+benchmark_df = load_benchmark()
+
+# Dropdown for benchmark position
+all_positions = sorted(benchmark_df['Position'].unique())
+selected_benchmark_position = st.selectbox("Select position to compare with:", all_positions)
+
+# Get player info
+selected_name = selected_player["Name"]
+selected_positions = selected_player["positions"]
+
+# Filter benchmark data for selected benchmark position
+def position_filter(pos_string, benchmark_position):
+    return benchmark_position in pos_string
+
+benchmark_filtered = benchmark_df[benchmark_df['Position'].apply(lambda x: position_filter(x, selected_benchmark_position))]
+
+# Get player row (from full benchmark data, regardless of position)
+player_benchmark_row = benchmark_df[benchmark_df['Name'] == selected_name]
+
+if player_benchmark_row.empty:
+    st.warning(f"No data found for player {selected_name}")
+else:
+    # KPIs for the selected benchmark position, intersect with columns present in dataframe
+    selected_kpis = [kpi for kpi in kpi_by_position.get(selected_benchmark_position, []) if kpi in benchmark_df.columns]
+
+    # Filter numeric KPIs only present for this player
+    numeric_kpis = [kpi for kpi in selected_kpis if pd.api.types.is_numeric_dtype(benchmark_df[kpi])]
+
+    # Prepare categories that have KPIs to show
+    categories_with_kpis = [cat for cat, cat_kpis in kpi_categories.items() if any(kpi in numeric_kpis for kpi in cat_kpis)]
+
+    # Define how many columns per row
+    cols_per_row = 3
+    rows = (len(categories_with_kpis) + cols_per_row - 1) // cols_per_row
+
+    for row_idx in range(rows):
+        cols = st.columns(cols_per_row)
+        for col_idx in range(cols_per_row):
+            cat_idx = row_idx * cols_per_row + col_idx
+            if cat_idx >= len(categories_with_kpis):
+                break
+
+            category = categories_with_kpis[cat_idx]
+            category_kpis = kpi_categories[category]
+            kpis_to_show = [kpi for kpi in category_kpis if kpi in numeric_kpis]
+            if not kpis_to_show:
+                continue
+
+            percentile_data = {}
+            for kpi in kpis_to_show:
+                player_value = player_benchmark_row.iloc[0][kpi]
+                percentile_rank = (benchmark_filtered[kpi] <= player_value).mean() * 100
+                percentile_data[kpi] = f"{percentile_rank:.1f}th percentile"
+
+            percentile_df = pd.DataFrame.from_dict(percentile_data, orient='index', columns=['Percentile Rank'])
+
+            def color_percentile_html(val):
+                percentile_num = float(val.split('th')[0])
+                red = int(255 * (100 - percentile_num) / 100)
+                green = int(255 * percentile_num / 100)
+                blue = 0
+                color = f"rgb({red},{green},{blue})"
+                return f'<div style="background-color:{color}; padding:6px; border-radius:4px;">{val}</div>'
+
+            percentile_df['Percentile Rank'] = percentile_df['Percentile Rank'].apply(color_percentile_html)
+            html_table = percentile_df.to_html(escape=False)
+
+            with cols[col_idx]:
+                st.subheader(f"{category}")
+                st.markdown(html_table, unsafe_allow_html=True)
+
+    # Final combined percentile table for all numeric KPIs
+    percentile_data = {}
+    for kpi in numeric_kpis:
+        player_value = player_benchmark_row.iloc[0][kpi]
+        percentile_rank = (benchmark_filtered[kpi] <= player_value).mean() * 100
+        percentile_data[kpi] = f"{percentile_rank:.1f}th percentile"
+
+    st.subheader(f"Percentile Ranks for {selected_name} vs. {selected_benchmark_position} NPL NSW players with 500+ Season Minutes by R15")
+
+    percentile_df = pd.DataFrame.from_dict(percentile_data, orient='index', columns=['Percentile Rank'])
+
+    def color_percentile_html(val):
+        percentile_num = float(val.split('th')[0])
+        red = int(255 * (100 - percentile_num) / 100)
+        green = int(255 * percentile_num / 100)
+        blue = 0
+        color = f"rgb({red},{green},{blue})"
+        return f'<div style="background-color:{color}; padding:6px; border-radius:4px;">{val}</div>'
+
+    percentile_df['Percentile Rank'] = percentile_df['Percentile Rank'].apply(color_percentile_html)
+    html_table = percentile_df.to_html(escape=False)
+    st.markdown(html_table, unsafe_allow_html=True)
+
+
 # Pre-defined disclaimer text
 disclaimer ="""
 Disclaimers:
@@ -388,4 +571,3 @@ Missing Data:
 # Display disclaimer at the bottom
 st.write("### Disclaimers & Missing Data")
 st.write(disclaimer)
-
