@@ -375,7 +375,7 @@ else:
 kpi_by_position = {
     "GK": [
         "Saves", "Shots Faced", "Goals Conceded", "xGOT Faced", "xG Prevented", "Passes", "Passes Att.",
-        "Pass %". "Long Balls", "Long Balls Att.", "Long Ball %", "Clearances", "PAdj Interceptions"
+        "Pass %", "Long Balls", "Long Balls Att.", "Long Ball %", "Clearances", "PAdj Interceptions"
     ],
     "FB": [
         "xA", "Assists", "Dribbles", "Dribbles Att.", "Dribble %", "Passes", "Passes Att.", "Pass %",
