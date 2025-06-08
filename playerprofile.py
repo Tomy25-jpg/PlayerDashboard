@@ -375,7 +375,7 @@ else:
 kpi_by_position = {
     "GK": [
         "Saves", "Shots Faced", "Goals Conceded", "xGOT Faced", "xG Prevented", "Passes", "Passes Att.",
-        "Pass %", "Long Balls", "Long Balls Att.", "Long Ball %", "Clearances", "PAdj Interceptions"
+        "Pass % Long Balls", "Long Balls Att.", "Long Ball %", "Clearances", "PAdj Interceptions"
     ],
     "FB": [
         "xA", "Assists", "Dribbles", "Dribbles Att.", "Dribble %", "Passes", "Passes Att.", "Pass %",
@@ -454,43 +454,91 @@ kpi_categories = {
     ]
 }
 
-# Load benchmark data
+def percentile_bar(percentile: float, width="100%", height=12):
+    if percentile <= 50:
+        color = "#e63946"  # red
+    elif percentile <= 69:
+        color = "#f4a261"  # orange
+    else:
+        color = "#2a9d8f"  # green
+
+    bar_html = f"""
+    <div style='background:#ddd; border-radius:5px; width:{width}; height:{height}px;'>
+      <div style='width:{percentile}%; height:{height}px; background:{color}; border-radius:5px;'></div>
+    </div>
+    """
+    return bar_html
+
+def extract_percentile(text: str) -> float:
+    return float(text.split('th')[0])  # e.g., "72.3th percentile"
+
+# Cache loading of benchmark data
 @st.cache_data
 def load_benchmark():
     return pd.read_excel("NPL NSW 2025 May Position Benchmarks.xlsx")
 
 benchmark_df = load_benchmark()
 
-# Dropdown for benchmark position
+# Dropdown to select benchmark position
 all_positions = sorted(benchmark_df['Position'].unique())
 selected_benchmark_position = st.selectbox("Select position to compare with:", all_positions)
 
-# Get player info
+# Assume selected_player is defined elsewhere with fields 'Name' and 'positions'
 selected_name = selected_player["Name"]
 selected_positions = selected_player["positions"]
 
-# Filter benchmark data for selected benchmark position
+# KPIs where LOWER values are better, so percentile is reversed by subtracting from 100
+negative_kpis = {"Fouls", "Offsides", "Dribbled Past"}
+
+# Filter benchmark data for selected benchmark position (partial match)
 def position_filter(pos_string, benchmark_position):
     return benchmark_position in pos_string
 
-benchmark_filtered = benchmark_df[benchmark_df['Position'].apply(lambda x: position_filter(x, selected_benchmark_position))]
+benchmark_filtered = benchmark_df[
+    benchmark_df['Position'].apply(lambda x: position_filter(x, selected_benchmark_position))
+]
 
-# Get player row (from full benchmark data, regardless of position)
+# Get player's benchmark row
 player_benchmark_row = benchmark_df[benchmark_df['Name'] == selected_name]
 
 if player_benchmark_row.empty:
     st.warning(f"No data found for player {selected_name}")
 else:
-    # KPIs for the selected benchmark position, intersect with columns present in dataframe
     selected_kpis = [kpi for kpi in kpi_by_position.get(selected_benchmark_position, []) if kpi in benchmark_df.columns]
-
-    # Filter numeric KPIs only present for this player
     numeric_kpis = [kpi for kpi in selected_kpis if pd.api.types.is_numeric_dtype(benchmark_df[kpi])]
 
-    # Prepare categories that have KPIs to show
+    # Categories that have at least one KPI in numeric_kpis
     categories_with_kpis = [cat for cat, cat_kpis in kpi_categories.items() if any(kpi in numeric_kpis for kpi in cat_kpis)]
 
-    # Define how many columns per row
+    # Inject CSS once
+    # Inject CSS once
+    if categories_with_kpis:
+        st.markdown("""
+        <style>
+            table {
+                width: 100%;
+                table-layout: fixed;
+                border-collapse: collapse;
+                margin-bottom: 10px;
+            }
+            th, td {
+                padding: 6px 8px;
+                text-align: left;
+                font-size: 13px;
+                border-bottom: 1px solid #ddd;
+                vertical-align: top;
+            }
+            th {
+                background-color: #f0f0f0;
+            }
+            td.value-cell {
+                white-space: nowrap;    /* keep numbers on one line */
+                /* Remove overflow:hidden and text-overflow:ellipsis */
+            }
+        </style>
+        """, unsafe_allow_html=True)
+
+    # Layout variables
     cols_per_row = 3
     rows = (len(categories_with_kpis) + cols_per_row - 1) // cols_per_row
 
@@ -507,52 +555,48 @@ else:
             if not kpis_to_show:
                 continue
 
-            percentile_data = {}
+            data = []
             for kpi in kpis_to_show:
                 player_value = player_benchmark_row.iloc[0][kpi]
-                percentile_rank = (benchmark_filtered[kpi] <= player_value).mean() * 100
-                percentile_data[kpi] = f"{percentile_rank:.1f}th percentile"
 
-            percentile_df = pd.DataFrame.from_dict(percentile_data, orient='index', columns=['Percentile Rank'])
+                # Calculate percentile, reverse if KPI is negative
+                if kpi in negative_kpis:
+                    original_percentile = (benchmark_filtered[kpi] <= player_value).mean() * 100
+                    percentile_rank = 100 - original_percentile
+                else:
+                    percentile_rank = (benchmark_filtered[kpi] <= player_value).mean() * 100
 
-            def color_percentile_html(val):
-                percentile_num = float(val.split('th')[0])
-                red = int(255 * (100 - percentile_num) / 100)
-                green = int(255 * percentile_num / 100)
-                blue = 0
-                color = f"rgb({red},{green},{blue})"
-                return f'<div style="background-color:{color}; padding:6px; border-radius:4px;">{val}</div>'
+                bar_html = percentile_bar(percentile_rank)
+                percentile_rank_formatted = f"{percentile_rank:.2f}"
 
-            percentile_df['Percentile Rank'] = percentile_df['Percentile Rank'].apply(color_percentile_html)
-            html_table = percentile_df.to_html(escape=False)
+                data.append({
+                    "KPI": kpi,
+                    "Value": player_value,
+                    "Percentile": bar_html,
+                    "PercentileValue": percentile_rank_formatted,
+                })
+
+            kpi_df = pd.DataFrame(data)
 
             with cols[col_idx]:
-                st.subheader(f"{category}")
-                st.markdown(html_table, unsafe_allow_html=True)
+                table_html = "<table>"
+                table_html += "<thead><tr><th style='width:35%'>KPI</th><th style='width:25%'>Value</th><th style='width:40%'>Percentile</th></tr></thead><tbody>"
+                for _, row in kpi_df.iterrows():
+                    table_html += (
+                        f"<tr>"
+                        f"<td>{row['KPI']}</td>"
+                        f"<td class='value-cell'>{row['Value']:.2f}</td>"
+                        f"<td>{row['Percentile']} <span style='font-size:11px; margin-left:4px;'>{row['PercentileValue']}%</span></td>"
+                        f"</tr>"
+                    )
+                table_html += "</tbody></table>"
 
-    # Final combined percentile table for all numeric KPIs
-    percentile_data = {}
-    for kpi in numeric_kpis:
-        player_value = player_benchmark_row.iloc[0][kpi]
-        percentile_rank = (benchmark_filtered[kpi] <= player_value).mean() * 100
-        percentile_data[kpi] = f"{percentile_rank:.1f}th percentile"
-
-    st.subheader(f"Percentile Ranks for {selected_name} vs. {selected_benchmark_position} NPL NSW players with 500+ Season Minutes by R15")
-
-    percentile_df = pd.DataFrame.from_dict(percentile_data, orient='index', columns=['Percentile Rank'])
-
-    def color_percentile_html(val):
-        percentile_num = float(val.split('th')[0])
-        red = int(255 * (100 - percentile_num) / 100)
-        green = int(255 * percentile_num / 100)
-        blue = 0
-        color = f"rgb({red},{green},{blue})"
-        return f'<div style="background-color:{color}; padding:6px; border-radius:4px;">{val}</div>'
-
-    percentile_df['Percentile Rank'] = percentile_df['Percentile Rank'].apply(color_percentile_html)
-    html_table = percentile_df.to_html(escape=False)
-    st.markdown(html_table, unsafe_allow_html=True)
-
+                st.markdown(f"""
+                    <div style='padding: 8px;'>
+                        <div style='font-size:14px; font-weight:bold; margin-bottom:6px;'>{category}</div>
+                        {table_html}
+                    </div>
+                """, unsafe_allow_html=True)
 
 # Pre-defined disclaimer text
 disclaimer ="""
