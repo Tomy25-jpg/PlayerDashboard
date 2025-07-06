@@ -47,6 +47,14 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041313_Wollongong_.jpg"
     },
     {
+        "Name": "Daniel Solsky",
+        "dob": "25-03-2003",
+        "Height": "191",
+        "Weight": "",
+        "positions": ["GK"],
+        "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041212_Wollongong_.jpg"
+    },
+    {
         "Name": "Darcy Madden",
         "dob": "17-04-1996",
         "Height": "188",
@@ -115,7 +123,7 @@ players = [
         "dob": "2006",
         "Height": "",
         "Weight": "",
-        "positions": ["LW"],
+        "positions": ["LW", "ST"],
         "image": ""
     },
     {
@@ -123,7 +131,7 @@ players = [
         "dob": "01-04-1996",
         "Height": "",
         "Weight": "",
-        "positions": ["RWB", "RW", "RB", "RCM"],
+        "positions": ["RWB", "RW", "RB", "RCM", "CM", "DM", "RDM"],
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041296_Wollongong_Beattie.jpg"
     },
     {
@@ -155,7 +163,7 @@ players = [
         "dob": "2006",
         "Height": "",
         "Weight": "",
-        "positions": ["LB"],
+        "positions": ["LB", "LDM"],
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041072_Wollongong_Duarte.jpg"
     },
     {
