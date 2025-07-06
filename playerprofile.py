@@ -383,7 +383,8 @@ else:
 kpi_by_position = {
     "GK": [
         "Saves", "Shots Faced", "Goals Conceded", "xGOT Faced", "xG Prevented", "Passes", "Passes Att.",
-        "Pass % Long Balls", "Long Balls Att.", "Long Ball %", "Clearances", "PAdj Interceptions"
+        "Pass %". "Long Balls", "Long Balls Att.", "Long Ball %", "Clearances", "PAdj Interceptions", "Aerial Duels", "Aerial Duels Att.",
+        "Aerial Duel %"
     ],
     "FB": [
         "xA", "Assists", "Dribbles", "Dribbles Att.", "Dribble %", "Passes", "Passes Att.", "Pass %",
@@ -458,7 +459,8 @@ kpi_categories = {
         "Fouls", "Clearances", "PAdj Interceptions", "PAdj Tackles", "Dribbled Past", "Blocked Shots"
     ],
     "Goalkeeping": [
-        "Saves", "Shots Faced", "Goals Conceded", "xGOT Faced", "xG Prevented"
+        "Saves", "Shots Faced", "Goals Conceded", "xGOT Faced", "xG Prevented", "Aerial Duels", "Aerial Duels Att.",
+        "Aerial Duel %"
     ]
 }
 
