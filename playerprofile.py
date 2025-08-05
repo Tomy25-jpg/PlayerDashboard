@@ -87,6 +87,14 @@ players = [
         "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041037_Wollongong_.jpg"
     },
     {
+        "Name": "Flynn Madden",
+        "dob": "13-02-2004",
+        "Height": "",
+        "Weight": "",
+        "positions": ["CAM, RAM, CM"],
+        "image": "https://wollongongwolves.com.au/wp-content/uploads/db202502041037_Wollongong_.jpg"
+    },
+    {
         "Name": "Harrison Buesnel",
         "dob": "28-06-2003",
         "Height": "188",
@@ -625,3 +633,4 @@ Missing Data:
 # Display disclaimer at the bottom
 st.write("### Disclaimers & Missing Data")
 st.write(disclaimer)
+
